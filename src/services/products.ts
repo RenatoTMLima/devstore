@@ -38,3 +38,19 @@ export async function getProduct(slug: string) {
 
   return parsedProducts.data;
 }
+
+export async function getSearchedProducts(query: string) {
+  const response = await api(`/products/search?q=${query}`, {
+    next: { revalidate: REVALIDATE_1_HOUR },
+  });
+
+  const products = await response.json();
+
+  const parsedProducts = productSchema.array().safeParse(products);
+
+  if (!parsedProducts.success) {
+    return [];
+  }
+
+  return parsedProducts.data;
+}

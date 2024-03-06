@@ -1,4 +1,6 @@
-import { getProduct } from "@/services/products";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { getFeaturedProducts, getProduct } from "@/services/products";
+import { Metadata } from "next";
 import Image from "next/image";
 
 type ProductPageProps = {
@@ -6,6 +8,22 @@ type ProductPageProps = {
     slug: string;
   };
 };
+
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
+  const product = await getProduct(params.slug);
+
+  return {
+    title: product?.title,
+  };
+}
+
+export async function generateStaticParams() {
+  const products = await getFeaturedProducts();
+
+  return products.map((product) => ({ slug: product.slug }));
+}
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProduct(params.slug);
@@ -77,12 +95,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="mt-8 flex h-12 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white"
-        >
-          Add to cart
-        </button>
+        <AddToCartButton productId={product.id} />
       </div>
     </div>
   );
